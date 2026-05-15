@@ -3,3 +3,4 @@ out/
 dist/out
 debug/*.bat
 !debug/resolve_symbols_example.bat
+reference/
