@@ -264,7 +264,27 @@ namespace kbf {
 		uint32_t materialCount = REInvoke<uint32_t>(mesh, "get_MaterialNum", {}, InvokeReturnType::DWORD);
 
 		for (uint32_t i = 0 ; i < materialCount; i++) {
-			std::string materialName = REInvokeStr(mesh, "getMaterialName(System.UInt32)", { (void*)i });
+
+			std::string materialName;
+
+			// It appears an exception can be thrown when trying get material name, in which case we should move onto the next material
+			
+			// I'm not entirely sure whether or not a pointer is still returned when an exception is thrown, REInvokeStr does not check
+			// whether or not an exception is thrown higher up in the chain, just whether or not a NULLPTR is returned.
+			
+			// If a pointer is returned regardless if an exception has been thrown, this must be remedied by adding an additional check 
+			// in the the function.
+			
+			try {
+				materialName = REInvokeStr(mesh, "getMaterialName(System.UInt32)", { (void*)i });
+				if (materialName == "ERROR: REInvokeStr Returned NULLPTR!"){
+
+					throw("Unknown Material");
+				}
+			}
+			catch (std::string e) {
+				continue;
+			}
 			std::uint32_t matVariableCount = REInvoke<std::uint32_t>(mesh, "getMaterialVariableNum(System.UInt32)", { (void*)i }, InvokeReturnType::DWORD);
 
 			std::unordered_map<std::string, MeshMaterialParam> params = {};
